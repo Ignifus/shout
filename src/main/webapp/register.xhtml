@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns:ui="http://java.sun.com/jsf/facelets"
+	  xmlns:f="http://java.sun.com/jsf/core"
+	  xmlns:h="http://java.sun.com/jsf/html">
+<ui:composition template="template.xhtml">
+	<ui:define name="title">
+		<h:outputText value="#{register.viewName}" />
+	</ui:define>
+	<ui:define name="content">
+		<h2>Registrarse</h2>
+
+        <h:dataTable value="#{landing.users}" var="p" styleClass="table">
+            <h:column>
+                #{p.userName}
+            </h:column>
+            <h:column>
+                #{p.email}
+            </h:column>
+            <h:column>
+                #{p.hash}
+            </h:column>
+            <h:column>
+                #{p.salt}
+            </h:column>
+        </h:dataTable>
+
+		<h:form styleClass="form-inline">
+			<div class="form-group">
+				<label>User</label>
+				<h:inputText styleClass="form-control" value="#{register.username}"/>
+			</div>
+			<div class="form-group">
+				<label>Email</label>
+				<h:inputText styleClass="form-control" value="#{register.email}"/>
+			</div>
+			<div class="form-group">
+				<label>Password</label>
+				<h:inputText styleClass="form-control" value="#{register.password}"/>
+			</div>
+			<h:commandLink action="#{register.register}" styleClass="btn btn-danger">Registrarse</h:commandLink>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</html>
