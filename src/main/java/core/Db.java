@@ -24,7 +24,7 @@ public class Db {
     public void init() {
         Security.Password sp = security.generatePassword("shout");
 
-        addUser(new User("shout", sp.hash, sp.salt, "shout@shout.com"));
+        addUser(new User(sp.hash, sp.salt, "shout@shout.com"));
     }
 
     public List<User> getUsers() {

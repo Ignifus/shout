@@ -17,10 +17,10 @@ public class UserController implements Serializable {
 
     private Security security = new Security();
 
-    public void createUser(String username, String password, String email) {
+    public void createUser(String password, String email) {
         Security.Password sp = security.generatePassword(password);
 
-        db.addUser(new User(username, sp.hash, sp.salt, email));
+        db.addUser(new User(sp.hash, sp.salt, email));
     }
 
     public List<User> getUsers() {

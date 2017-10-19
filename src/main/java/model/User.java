@@ -2,13 +2,11 @@ package model;
 
 public class User {
     private int id;
-    private String userName;
     private String hash;
     private String salt;
     private String email;
 
-    public User(String userName, String hash, String salt, String email) {
-        this.userName = userName;
+    public User(String hash, String salt, String email) {
         this.hash = hash;
         this.salt = salt;
         this.email = email;
@@ -20,10 +18,6 @@ public class User {
 
     public int getId() {
         return id;
-    }
-
-    public String getUserName() {
-        return userName;
     }
 
     public String getHash() {

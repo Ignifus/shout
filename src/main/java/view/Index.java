@@ -1,33 +1,36 @@
 package view;
 
 import controller.UserController;
+import model.User;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.List;
 
-@Named("register")
+@Named("index")
 @RequestScoped
-public class Register implements Serializable {
+public class Index implements Serializable {
 
     @Inject
     private UserController controller;
 
-    private String username;
+    @NotNull(message = "Requerido")
+    @Email(message = "Email invalido")
     private String email;
+
+    @NotNull(message = "Requerido")
     private String password;
 
+    public List<User> getUsers() {
+        return controller.getUsers();
+    }
+
     public void register() {
-        controller.createUser(username, password, email);
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+        controller.createUser(password, email);
     }
 
     public String getPassword() {
@@ -47,6 +50,7 @@ public class Register implements Serializable {
     }
 
     public String getViewName() {
-        return "Registrarse";
+        return "Bienvenido";
     }
+
 }

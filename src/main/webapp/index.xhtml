@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html [
+        <!ENTITY copy "&#169;"> ]>
+
+<html xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+
+<ui:composition template="template.xhtml">
+    <ui:define name="title">
+        <h:outputText value="#{index.viewName}" />
+    </ui:define>
+    <ui:define name="content">
+        <header id="header">
+            <h1>Shout</h1>
+            <p>Una red social para expresarse.</p>
+        </header>
+
+        <h:dataTable value="#{index.users}" var="p" styleClass="table">
+            <h:column>
+                #{p.email}
+            </h:column>
+            <h:column>
+                #{p.hash}
+            </h:column>
+            <h:column>
+                #{p.salt}
+            </h:column>
+        </h:dataTable>
+
+        <h:form id="signup-form">
+            <div>
+                <h:message for="email"/>
+                <h:inputText id="email" styleClass="form-control" value="#{index.email}" a:placeholder="Direccion de Email" />
+            </div>
+
+            <div>
+                <h:message for="password"/>
+                <h:inputSecret id="password" styleClass="form-control" value="#{index.password}" a:placeholder="Contraseña"/>
+            </div>
+
+            <h:commandButton value="Registrarse" type="submit" action="#{index.register}" />
+        </h:form>
+
+        <footer id="footer">
+            <ul class="copyright">
+                <li>&copy; Shout Social.</li>
+            </ul>
+        </footer>
+
+    </ui:define>
+</ui:composition>
+
+</html>
