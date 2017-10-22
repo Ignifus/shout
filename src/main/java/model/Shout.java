@@ -2,13 +2,13 @@ package model;
 
 import java.util.Date;
 
-public class Post {
+public class Shout {
     private int id;
     private User user;
     private Date date;
     private String content;
 
-    public Post(User user, Date date, String content) {
+    public Shout(User user, Date date, String content) {
         this.user = user;
         this.date = date;
         this.content = content;

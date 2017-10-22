@@ -13,9 +13,14 @@ public class Security {
 
     private static final Random RANDOM = new SecureRandom();
 
-    public Password generatePassword(String password) {
+    public Password generatePassword(String password, byte[] dbSalt) {
         try {
-            byte[] salt = nextSalt();
+            byte[] salt;
+
+            if(dbSalt != null)
+                salt = dbSalt;
+            else
+                salt = nextSalt();
 
             KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
             SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
@@ -29,7 +34,7 @@ public class Security {
     }
 
     public boolean verifyPassword(String userPassword, Password dbPassword) {
-        return generatePassword(userPassword).hash.equals(dbPassword.hash);
+        return generatePassword(userPassword, Base64.getDecoder().decode(dbPassword.salt)).hash.equals(dbPassword.hash);
     }
 
     private byte[] nextSalt() {

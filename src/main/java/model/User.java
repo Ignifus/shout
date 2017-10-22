@@ -6,7 +6,9 @@ public class User {
     private String salt;
     private String email;
 
-    public User(String hash, String salt, String email) {
+    private boolean isAuthenticated;
+
+    public User(String email, String hash, String salt) {
         this.hash = hash;
         this.salt = salt;
         this.email = email;
@@ -30,5 +32,13 @@ public class User {
 
     public String getEmail() {
         return email;
+    }
+
+    public boolean isAuthenticated() {
+        return isAuthenticated;
+    }
+
+    public void setAuthenticated(boolean authenticated) {
+        isAuthenticated = authenticated;
     }
 }

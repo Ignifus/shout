@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html [
+        <!ENTITY copy "&#169;"> ]>
+
+<html xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+
+<ui:composition template="template.xhtml">
+    <ui:define name="title">
+        <h:outputText value="#{feed.viewName}" />
+    </ui:define>
+    <ui:define name="content">
+
+        <h:outputScript name="js/feed.js" />
+
+        <div class="shout-form">
+            <h2>Shouts</h2>
+
+            <h3>Diga algo!</h3>
+
+            <span>Contenido:<br />
+            <textarea name="shout_content" id="shout_content" rows="2" cols="50" style="resize:none;"/>
+        </span>
+
+            <button class="button" onClick="shout()">Shout</button>
+
+            <h2>Feed</h2>
+
+            <div class="feed-container" id="feed-container">
+
+            </div>
+        </div>
+
+        <footer id="footer">
+            <ul class="copyright">
+                <li>&copy; Shout Social.</li>
+            </ul>
+        </footer>
+
+    </ui:define>
+</ui:composition>
+
+</html>

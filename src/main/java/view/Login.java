@@ -3,7 +3,6 @@ package view;
 import controller.UserController;
 import core.LoginManager;
 import model.User;
-import websocket.FeedSessionHandler;
 
 import javax.enterprise.context.RequestScoped;
 import javax.faces.context.ExternalContext;
@@ -15,13 +14,12 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Named("index")
+@Named("login")
 @RequestScoped
-public class Index implements Serializable {
+public class Login implements Serializable {
 
     @Inject
     private UserController controller;
@@ -38,23 +36,41 @@ public class Index implements Serializable {
     @Size(min = 8, max = 20)
     private String password;
 
-    public List<User> getUsers() {
-        return controller.getUsers();
+    private String wrongLogin;
+
+    public String getWrongLogin() {
+        return wrongLogin;
     }
 
-    public void register() {
-        controller.createUser(email, password);
-        User u = controller.login(email, password);
-        loginManager.setCurrentUser(u);
+    public void setWrongLogin(String wrongPassword) {
+        this.wrongLogin = wrongPassword;
+    }
+
+    public void login() {
+        this.wrongLogin = null;
 
         try{
+
             ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-            context.redirect(context.getRequestContextPath() + "feed.xhtml?email=" + loginManager.getCurrentUser().getEmail());
+
+            if(loginManager.getCurrentUser() != null)
+                context.redirect(context.getRequestContextPath() + "feed.xhtml?email=" + loginManager.getCurrentUser().getEmail());
+
+            User u = controller.login(email, password);
+
+            if(u != null) {
+                loginManager.setCurrentUser(u);
+                context.redirect(context.getRequestContextPath() + "feed.xhtml?email=" + loginManager.getCurrentUser().getEmail());
+            }
+            else {
+                this.wrongLogin = "Contraseña o email incorrecto";
+                context.redirect(context.getRequestContextPath() + "login.xhtml");
+            }
+
         }
         catch (IOException e) {
-            Logger.getLogger(Index.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, e);
         }
-
     }
 
     public String getPassword() {
@@ -74,7 +90,6 @@ public class Index implements Serializable {
     }
 
     public String getViewName() {
-        return "Bienvenido";
+        return "Entrar";
     }
-
 }

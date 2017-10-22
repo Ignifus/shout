@@ -9,29 +9,26 @@
 
 <ui:composition template="template.xhtml">
     <ui:define name="title">
-        <h:outputText value="#{index.viewName}" />
+        <h:outputText value="#{login.viewName}" />
     </ui:define>
     <ui:define name="content">
-        <header id="header">
-            <h1>Shout</h1>
-            <p>Una red social para expresarse.</p>
-        </header>
 
-        <h:form id="signup-form">
+        <h:form styleClass="login-form">
             <div>
                 <h:message for="email"/>
-                <h:inputText id="email" styleClass="form-control" value="#{index.email}" a:placeholder="Direccion de Email" />
+                <h:inputText id="email" styleClass="form__input" value="#{login.email}" a:placeholder="Direccion de Email" />
             </div>
 
             <div>
                 <h:message for="password"/>
-                <h:inputSecret id="password" styleClass="form-control" value="#{index.password}" a:placeholder="Contraseña"/>
+                <h:inputSecret id="password" styleClass="form__input" value="#{login.password}" a:placeholder="Contraseña"/>
+                <h:outputLabel value="#{login.wrongLogin}" style="color:darkred" />
             </div>
 
-            <h:commandButton value="Registrarse" type="submit" action="#{index.register}" />
+            <h:commandButton value="Entrar" type="submit" action="#{login.login}" />
+            <br/>
+            <h:outputLink value="index.xhtml">Registrarse</h:outputLink>
         </h:form>
-
-        Ya soy miembro! <h:outputLink value="login.xhtml">Entrar</h:outputLink>
 
         <footer id="footer">
             <ul class="copyright">
