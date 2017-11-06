@@ -4,17 +4,12 @@ import controller.UserController;
 import model.User;
 
 import javax.enterprise.context.RequestScoped;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Named("index")
 @RequestScoped
@@ -35,18 +30,11 @@ public class Index implements Serializable {
         return controller.getUsers();
     }
 
-    public void register() {
+    public String register() {
         controller.createUser(email, password);
         User u = controller.login(email, password);
 
-        try{
-            ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-            context.redirect(context.getRequestContextPath() + "feed.xhtml?email=" + u.getEmail());
-        }
-        catch (IOException e) {
-            Logger.getLogger(Index.class.getName()).log(Level.SEVERE, null, e);
-        }
-
+        return "/feed.xhtml?faces-redirect=true&email=" + u.getEmail();
     }
 
     public String getPassword() {

@@ -4,16 +4,11 @@ import controller.UserController;
 import model.User;
 
 import javax.enterprise.context.RequestScoped;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Named("login")
 @RequestScoped
@@ -43,24 +38,15 @@ public class Login implements Serializable {
     public String login() {
         this.wrongLogin = null;
 
-        try{
-            ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+        User u = controller.login(email, password);
 
-            User u = controller.login(email, password);
-
-            if(u != null) {
-                context.redirect(context.getRequestContextPath() + "feed.xhtml?email=" + u.getEmail());
-            }
-            else {
-                this.wrongLogin = "Contraseña o email incorrecto";
-                return "/login.xhtml";
-            }
+        if(u != null) {
+            return "/feed.xhtml?faces-redirect=true&email=" + u.getEmail();
         }
-        catch (IOException e) {
-            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, e);
+        else {
+            this.wrongLogin = "Contraseña o email incorrecto";
+            return "/login.xhtml";
         }
-
-        return null;
     }
 
     public String getPassword() {
