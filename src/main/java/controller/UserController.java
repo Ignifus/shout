@@ -1,43 +1,41 @@
 package controller;
 
-import core.Db;
+import core.Database;
 import core.Security;
 import model.User;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import java.util.List;
 
 @RequestScoped
 public class UserController {
 
-    @Inject
-    private Db db;
-
+    private Database database = new Database();
     private Security security = new Security();
 
     public void createUser(String email, String password) {
         Security.Password sp = security.generatePassword(password, null);
 
-        db.addUser(new User(email, sp.hash, sp.salt));
+        database.addUser(new User(email, sp.hash, sp.salt));
     }
 
     public User login(String email, String password) {
-        User u = db.getUser(email);
+        User u = database.getUser(email);
 
         if (u == null)
             return null;
 
         if(security.verifyPassword(password, new Security.Password(u.getHash(), u.getSalt())))
         {
-            db.authUser(email);
+            database.authUser(email, true);
             return u;
         }
-        else
+        else {
             return null;
+        }
     }
 
     public List<User> getUsers() {
-        return db.getUsers();
+        return database.getUsers();
     }
 }

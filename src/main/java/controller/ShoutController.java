@@ -1,23 +1,20 @@
 package controller;
 
-import core.Db;
+import core.Database;
 import model.Shout;
 
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import java.util.List;
 
 @RequestScoped
 public class ShoutController {
-
-    @Inject
-    private Db db;
+    private Database database = new Database();
 
     public List<Shout> getShouts() {
-        return db.getShouts();
+        return database.getShouts();
     }
 
     public void addShout(Shout shout) {
-        db.addShout(shout);
+        database.addShout(shout);
     }
 }

@@ -5,12 +5,12 @@ import core.LoginManager;
 import model.User;
 
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.io.Serializable;
@@ -28,7 +28,6 @@ public class Login implements Serializable {
     private LoginManager loginManager;
 
     @NotNull(message = "{Requerido}")
-    @Email
     @Size(min = 2, max = 320)
     private String email;
 
@@ -54,7 +53,10 @@ public class Login implements Serializable {
             ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 
             if(loginManager.getCurrentUser() != null)
+            {
                 context.redirect(context.getRequestContextPath() + "feed.xhtml?email=" + loginManager.getCurrentUser().getEmail());
+                return;
+            }
 
             User u = controller.login(email, password);
 

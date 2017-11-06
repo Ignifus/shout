@@ -3,15 +3,14 @@ package view;
 import controller.UserController;
 import core.LoginManager;
 import model.User;
-import websocket.FeedSessionHandler;
 
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.io.Serializable;
@@ -30,7 +29,6 @@ public class Index implements Serializable {
     private LoginManager loginManager;
 
     @NotNull(message = "{Requerido}")
-    @Email
     @Size(min = 2, max = 320)
     private String email;
 

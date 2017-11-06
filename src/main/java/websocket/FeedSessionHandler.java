@@ -1,10 +1,12 @@
 package websocket;
 
-import controller.ShoutController;
-import core.Db;
+import core.Database;
 import model.Shout;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.json.JsonObject;
+import javax.json.spi.JsonProvider;
+import javax.websocket.Session;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -14,22 +16,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.inject.Inject;
-import javax.json.JsonObject;
-import javax.json.spi.JsonProvider;
-import javax.websocket.Session;
 
 @ApplicationScoped
 public class FeedSessionHandler {
-    @Inject
-    private Db db;
 
+    private Database database = new Database();
     private final Set<Session> sessions = new HashSet<>();
 
     public void addSession(Session session) {
         sessions.add(session);
 
-        for (Shout shout : db.getShouts()) {
+        for (Shout shout : database.getShouts()) {
             JsonObject addMessage = createAddMessage(shout);
             sendToSession(session, addMessage);
         }
@@ -40,11 +37,11 @@ public class FeedSessionHandler {
     }
 
     public List<Shout> getShouts() {
-        return new ArrayList<>(db.getShouts());
+        return new ArrayList<>(database.getShouts());
     }
 
     public void addShout(Shout shout) {
-        db.addShout(shout);
+        database.addShout(shout);
 
         JsonObject addMessage = createAddMessage(shout);
         sendToAllConnectedSessions(addMessage);

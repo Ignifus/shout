@@ -1,7 +1,14 @@
 package model;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name="users")
 public class User {
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String hash;
     private String salt;
     private String email;
@@ -12,6 +19,9 @@ public class User {
         this.hash = hash;
         this.salt = salt;
         this.email = email;
+    }
+
+    public User() {
     }
 
     public void setId(int id) {
@@ -38,7 +48,5 @@ public class User {
         return isAuthenticated;
     }
 
-    public void setAuthenticated(boolean authenticated) {
-        isAuthenticated = authenticated;
-    }
+    public void setAuthenticated(boolean auth) { isAuthenticated = auth; }
 }

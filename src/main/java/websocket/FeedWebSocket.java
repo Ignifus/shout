@@ -1,19 +1,13 @@
 package websocket;
 
-import core.Db;
-import core.LoginManager;
+import core.Database;
 import model.Shout;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
+import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.StringReader;
@@ -27,8 +21,7 @@ public class FeedWebSocket {
     @Inject
     private FeedSessionHandler handler;
 
-    @Inject
-    private Db db;
+    private Database database = new Database();
 
     private volatile String email;
 
@@ -36,7 +29,7 @@ public class FeedWebSocket {
     public void open(@PathParam("email") String email, Session session) {
         this.email = email;
 
-        if (db.isUserAuthenticated(email))
+        if (database.getUser(email).isAuthenticated())
             handler.addSession(session);
     }
 
@@ -44,7 +37,7 @@ public class FeedWebSocket {
     public void close(Session session) {
         handler.removeSession(session);
 
-        db.deauthUser(email);
+        database.authUser(email, false);
     }
 
     @OnError
@@ -58,7 +51,7 @@ public class FeedWebSocket {
             JsonObject jsonMessage = reader.readObject();
 
             if ("add".equals(jsonMessage.getString("action"))) {
-                Shout shout = new Shout(db.getUser(email), new Date(), jsonMessage.getString("content"));
+                Shout shout = new Shout(database.getUser(email), new Date(), jsonMessage.getString("content"));
                 handler.addShout(shout);
             }
         }
