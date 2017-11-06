@@ -1,14 +1,19 @@
 package controller;
 
 import core.Database;
+import core.LoginManager;
 import core.Security;
 import model.User;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
+import java.io.Serializable;
 import java.util.List;
 
-@RequestScoped
-public class UserController {
+@SessionScoped
+public class UserController implements Serializable {
+    @Inject
+    private LoginManager loginManager;
 
     private Database database = new Database();
     private Security security = new Security();
@@ -28,11 +33,16 @@ public class UserController {
         if(security.verifyPassword(password, new Security.Password(u.getHash(), u.getSalt())))
         {
             database.authUser(email, true);
+            loginManager.setCurrentUser(u);
             return u;
         }
         else {
             return null;
         }
+    }
+
+    public void logout() {
+        database.authUser(loginManager.getCurrentUser().getEmail(), false);
     }
 
     public List<User> getUsers() {

@@ -23,7 +23,11 @@
             <textarea name="shout_content" id="shout_content" rows="2" cols="50" style="resize:none;"/>
         </span>
 
-            <button class="button" onClick="shout()">Shout</button>
+            <button class="button" onClick="shout()">Shout</button><br />
+
+            <h:form>
+                <h:commandLink action="#{feed.logout}" value="Desconectarse" />
+            </h:form>
 
             <h2>Feed</h2>
 

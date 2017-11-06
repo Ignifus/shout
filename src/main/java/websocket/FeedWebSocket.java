@@ -31,13 +31,12 @@ public class FeedWebSocket {
 
         if (database.getUser(email).isAuthenticated())
             handler.addSession(session);
+        // TODO: Else, redirect to http context
     }
 
     @OnClose
     public void close(Session session) {
         handler.removeSession(session);
-
-        database.authUser(email, false);
     }
 
     @OnError

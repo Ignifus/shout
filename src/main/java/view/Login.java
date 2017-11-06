@@ -1,11 +1,9 @@
 package view;
 
 import controller.UserController;
-import core.LoginManager;
 import model.User;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.context.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -23,9 +21,6 @@ public class Login implements Serializable {
 
     @Inject
     private UserController controller;
-
-    @Inject
-    private LoginManager loginManager;
 
     @NotNull(message = "{Requerido}")
     @Size(min = 2, max = 320)
@@ -45,34 +40,27 @@ public class Login implements Serializable {
         this.wrongLogin = wrongPassword;
     }
 
-    public void login() {
+    public String login() {
         this.wrongLogin = null;
 
         try{
-
             ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-
-            if(loginManager.getCurrentUser() != null)
-            {
-                context.redirect(context.getRequestContextPath() + "feed.xhtml?email=" + loginManager.getCurrentUser().getEmail());
-                return;
-            }
 
             User u = controller.login(email, password);
 
             if(u != null) {
-                loginManager.setCurrentUser(u);
-                context.redirect(context.getRequestContextPath() + "feed.xhtml?email=" + loginManager.getCurrentUser().getEmail());
+                context.redirect(context.getRequestContextPath() + "feed.xhtml?email=" + u.getEmail());
             }
             else {
                 this.wrongLogin = "Contraseña o email incorrecto";
-                context.redirect(context.getRequestContextPath() + "login.xhtml");
+                return "/login.xhtml";
             }
-
         }
         catch (IOException e) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, e);
         }
+
+        return null;
     }
 
     public String getPassword() {

@@ -1,11 +1,9 @@
 package view;
 
 import controller.UserController;
-import core.LoginManager;
 import model.User;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.context.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -25,9 +23,6 @@ public class Index implements Serializable {
     @Inject
     private UserController controller;
 
-    @Inject
-    private LoginManager loginManager;
-
     @NotNull(message = "{Requerido}")
     @Size(min = 2, max = 320)
     private String email;
@@ -43,11 +38,10 @@ public class Index implements Serializable {
     public void register() {
         controller.createUser(email, password);
         User u = controller.login(email, password);
-        loginManager.setCurrentUser(u);
 
         try{
             ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-            context.redirect(context.getRequestContextPath() + "feed.xhtml?email=" + loginManager.getCurrentUser().getEmail());
+            context.redirect(context.getRequestContextPath() + "feed.xhtml?email=" + u.getEmail());
         }
         catch (IOException e) {
             Logger.getLogger(Index.class.getName()).log(Level.SEVERE, null, e);
