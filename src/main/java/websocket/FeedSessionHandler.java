@@ -4,44 +4,46 @@ import core.Database;
 import model.Shout;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.json.JsonObject;
 import javax.json.spi.JsonProvider;
 import javax.websocket.Session;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ApplicationScoped
 public class FeedSessionHandler {
 
-    private Database database = new Database();
-    private final Set<Session> sessions = new HashSet<>();
+    @Inject
+    private Database database;
 
-    public void addSession(Session session) {
-        sessions.add(session);
+    private final Map<String, WebSocketSession> sessions = new HashMap<>();
 
-        for (Shout shout : database.getShouts()) {
+    public WebSocketSession getSession(Session session) {
+        return sessions.get(session.getId());
+    }
+
+    public void addSession(WebSocketSession session) {
+        sessions.put(session.getSession().getId(), session);
+
+        for (Shout shout : database.getShouts(session.getConnection())) {
             JsonObject addMessage = createAddMessage(shout);
-            sendToSession(session, addMessage);
+            sendToSession(session.getSession(), addMessage);
         }
     }
 
     public void removeSession(Session session) {
-        sessions.remove(session);
+        sessions.get(session.getId()).getConnection().close();
+        sessions.remove(session.getId());
     }
 
-    public List<Shout> getShouts() {
-        return new ArrayList<>(database.getShouts());
-    }
-
-    public void addShout(Shout shout) {
-        database.addShout(shout);
+    public void addShout(Session session, Shout shout) {
+        database.addShout(sessions.get(session.getId()).getConnection(), shout);
 
         JsonObject addMessage = createAddMessage(shout);
         sendToAllConnectedSessions(addMessage);
@@ -61,8 +63,8 @@ public class FeedSessionHandler {
     }
 
     private void sendToAllConnectedSessions(JsonObject message) {
-        for (Session session : sessions) {
-            sendToSession(session, message);
+        for (Map.Entry<String, WebSocketSession> session : sessions.entrySet()) {
+            sendToSession(session.getValue().getSession(), message);
         }
     }
 
@@ -70,7 +72,7 @@ public class FeedSessionHandler {
         try {
             session.getBasicRemote().sendText(message.toString());
         } catch (IOException ex) {
-            sessions.remove(session);
+            sessions.remove(session.getId());
             Logger.getLogger(FeedSessionHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

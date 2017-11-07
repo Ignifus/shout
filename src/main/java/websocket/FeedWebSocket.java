@@ -2,11 +2,13 @@ package websocket;
 
 import core.Database;
 import model.Shout;
+import model.User;
 
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+import javax.persistence.EntityManager;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
@@ -21,16 +23,26 @@ public class FeedWebSocket {
     @Inject
     private FeedSessionHandler handler;
 
-    private Database database = new Database();
-
-    private volatile String email;
+    @Inject
+    private Database database;
 
     @OnOpen
     public void open(@PathParam("email") String email, Session session) {
-        this.email = email;
+        EntityManager connection = database.getConnection();
 
-        if (database.getUser(email).isAuthenticated())
-            handler.addSession(session);
+        User user = database.getUser(connection, email);
+
+        if (user != null) {
+            if (user.isAuthenticated())
+                handler.addSession(new WebSocketSession(user, connection, session));
+            else {
+                connection.close();
+            }
+        }
+        else {
+            connection.close();
+        }
+
         // TODO: Else, redirect to http context
     }
 
@@ -49,9 +61,11 @@ public class FeedWebSocket {
         try (JsonReader reader = Json.createReader(new StringReader(message))) {
             JsonObject jsonMessage = reader.readObject();
 
+            WebSocketSession webSocketSession = handler.getSession(session);
+
             if ("add".equals(jsonMessage.getString("action"))) {
-                Shout shout = new Shout(database.getUser(email), new Date(), jsonMessage.getString("content"));
-                handler.addShout(shout);
+                Shout shout = new Shout(database.getUser(webSocketSession.getConnection(), webSocketSession.getUser().getEmail()), new Date(), jsonMessage.getString("content"));
+                handler.addShout(session, shout);
             }
         }
     }

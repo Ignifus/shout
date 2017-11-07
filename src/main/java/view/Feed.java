@@ -19,6 +19,6 @@ public class Feed implements Serializable {
 
     public String logout() {
         userController.logout();
-        return "/login.xhtml";
+        return "login.xhtml";
     }
 }

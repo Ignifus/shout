@@ -5,8 +5,11 @@ import core.LoginManager;
 import core.Security;
 import model.User;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import java.io.Serializable;
 import java.util.List;
 
@@ -15,24 +18,42 @@ public class UserController implements Serializable {
     @Inject
     private LoginManager loginManager;
 
-    private Database database = new Database();
-    private Security security = new Security();
+    @Inject
+    private Database database;
+    private EntityManager connection;
+
+    @Inject
+    private Security security;
+
+    @PostConstruct
+    public void init() {
+        connection = database.getConnection();
+    }
+
+    @PreDestroy
+    public void destroy() {
+        connection.close();
+    }
+
+    public User getCurrentUser() {
+        return loginManager.getCurrentUser();
+    }
 
     public void createUser(String email, String password) {
         Security.Password sp = security.generatePassword(password, null);
 
-        database.addUser(new User(email, sp.hash, sp.salt));
+        database.addUser(connection, new User(email, sp.hash, sp.salt));
     }
 
     public User login(String email, String password) {
-        User u = database.getUser(email);
+        User u = database.getUser(connection, email);
 
         if (u == null)
             return null;
 
         if(security.verifyPassword(password, new Security.Password(u.getHash(), u.getSalt())))
         {
-            database.authUser(email, true);
+            database.authUser(connection, email, true);
             loginManager.setCurrentUser(u);
             return u;
         }
@@ -42,10 +63,11 @@ public class UserController implements Serializable {
     }
 
     public void logout() {
-        database.authUser(loginManager.getCurrentUser().getEmail(), false);
+        loginManager.setCurrentUser(null);
+        database.authUser(connection, loginManager.getCurrentUser().getEmail(), false);
     }
 
     public List<User> getUsers() {
-        return database.getUsers();
+        return database.getUsers(connection);
     }
 }

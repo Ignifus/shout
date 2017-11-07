@@ -2,6 +2,8 @@ package core;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.enterprise.context.SessionScoped;
+import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -9,7 +11,8 @@ import java.security.spec.KeySpec;
 import java.util.Base64;
 import java.util.Random;
 
-public class Security {
+@SessionScoped
+public class Security implements Serializable {
 
     private static final Random RANDOM = new SecureRandom();
 

@@ -21,7 +21,8 @@
             <div>
                 <h:message for="password"/>
                 <h:inputSecret id="password" styleClass="form__input" value="#{login.password}" a:placeholder="Contraseña"/>
-                <h:outputLabel value="#{login.wrongLogin}" style="color:darkred" />
+
+                <h:messages style="color:darkred" />
             </div>
 
             <h:commandButton value="Entrar" type="submit" action="#{login.login}" />

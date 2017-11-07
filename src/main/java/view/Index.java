@@ -6,6 +6,7 @@ import model.User;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
@@ -19,7 +20,8 @@ public class Index implements Serializable {
     private UserController controller;
 
     @NotNull(message = "{Requerido}")
-    @Size(min = 2, max = 320)
+    @Size(min = 6, max = 320)
+    @Email
     private String email;
 
     @NotNull(message = "{Requerido}")
@@ -31,10 +33,13 @@ public class Index implements Serializable {
     }
 
     public String register() {
+        if (controller.getCurrentUser() != null)
+            return "feed.xhtml?faces-redirect=true&email=" + controller.getCurrentUser().getEmail();
+
         controller.createUser(email, password);
         User u = controller.login(email, password);
 
-        return "/feed.xhtml?faces-redirect=true&email=" + u.getEmail();
+        return "feed.xhtml?faces-redirect=true&email=" + u.getEmail();
     }
 
     public String getPassword() {
