@@ -1,5 +1,6 @@
 package core;
 
+import model.Comment;
 import model.Shout;
 import model.User;
 
@@ -80,5 +81,27 @@ public class Database implements Serializable{
         connection.getTransaction().begin();
         connection.remove(connection.find(Shout.class, id));
         connection.getTransaction().commit();
+    }
+
+    public Shout getShout(EntityManager connection, int id) {
+        return connection.find(Shout.class, id);
+    }
+
+    public void addComment(EntityManager connection, Comment c) {
+        connection.getTransaction().begin();
+        connection.persist(c);
+        connection.getTransaction().commit();
+    }
+
+    public List<Comment> getComments(EntityManager connection, int shoutId) {
+        TypedQuery<Comment> query = connection.createQuery(
+                "SELECT u FROM Comment u WHERE u.shout.id = :shoutId", Comment.class);
+
+        try {
+            return query.setParameter("shoutId", shoutId).getResultList();
+        }
+        catch (NoResultException e) {
+            return null;
+        }
     }
 }

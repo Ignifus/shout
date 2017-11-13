@@ -1,6 +1,7 @@
 package websocket;
 
 import core.Database;
+import model.Comment;
 import model.Shout;
 import model.User;
 
@@ -60,12 +61,24 @@ public class FeedWebSocket {
     public void handleMessage(String message, Session session) {
         try (JsonReader reader = Json.createReader(new StringReader(message))) {
             JsonObject jsonMessage = reader.readObject();
-
             WebSocketSession webSocketSession = handler.getSession(session);
 
-            if ("add".equals(jsonMessage.getString("action"))) {
-                Shout shout = new Shout(database.getUser(webSocketSession.getConnection(), webSocketSession.getUser().getEmail()), new Date(), jsonMessage.getString("content"));
-                handler.addShout(session, shout);
+            switch(jsonMessage.getString("action")) {
+                case "addShout":
+                    Shout shout = new Shout(
+                            database.getUser(webSocketSession.getConnection(), webSocketSession.getUser().getEmail()),
+                            new Date(),
+                            jsonMessage.getString("content"));
+                    handler.addShout(session, shout);
+                    break;
+                case "addComment":
+                    Comment comment = new Comment(database.getUser(
+                            webSocketSession.getConnection(), webSocketSession.getUser().getEmail()),
+                            database.getShout(webSocketSession.getConnection(), jsonMessage.getInt("shout_id")),
+                            new Date(),
+                            jsonMessage.getString("content"));
+                    handler.addComment(session, comment);
+                    break;
             }
         }
     }

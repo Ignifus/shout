@@ -4,9 +4,12 @@ var socket = new WebSocket("ws://localhost:8080/feed/" + email);
 socket.onmessage = onMessage;
 
 function onMessage(event) {
-    var shout = JSON.parse(event.data);
-    if (shout.action === "add") {
-        printShout(shout);
+    var message = JSON.parse(event.data);
+    if (message.action === "addShout") {
+        printShout(message);
+    }
+    else if (message.action === "addComment") {
+        printComment(message);
     }
 }
 
@@ -16,7 +19,7 @@ function printShout(shout) {
     var shoutDiv = document.createElement("div");
 
     var shoutDivUser = document.createElement("h4");
-    shoutDivUser.textContent = shout.email + " dijo:";
+    shoutDivUser.textContent = shout.email + " dijo a las " + shout.date + ":";
     shoutDiv.appendChild(shoutDivUser);
 
     var shoutDivContent = document.createElement("p");
@@ -24,12 +27,46 @@ function printShout(shout) {
     shoutDivContent.appendChild(node);
     shoutDiv.appendChild(shoutDivContent);
 
-    var shoutDivDate = document.createElement("p");
-    var node2 = document.createTextNode(shout.date);
-    shoutDivDate.appendChild(node2);
-    shoutDiv.appendChild(shoutDivDate);
+    shoutDiv.setAttribute("id", shout.id);
+
+    var shoutCommentsTitle = document.createElement("h5");
+    shoutCommentsTitle.textContent = "Comentarios";
+    shoutDiv.appendChild(shoutCommentsTitle);
+
+    var shoutCommentsDiv = document.createElement("div");
+    shoutCommentsDiv.setAttribute("id", shout.id + "_comments");
+    shoutDiv.appendChild(shoutCommentsDiv);
+
+    var shoutCommentTextArea = document.createElement("textarea");
+    shoutCommentTextArea.setAttribute("id", shout.id + "_comment");
+    shoutCommentTextArea.setAttribute("rows", "2");
+    shoutCommentTextArea.setAttribute("cols", "50");
+    shoutCommentTextArea.setAttribute("style", "resize:none;");
+    shoutDiv.appendChild(shoutCommentTextArea);
+
+    var shoutCommentButton = document.createElement("button");
+    shoutCommentButton.setAttribute("onClick", "comment(" + shout.id+ ")");
+    shoutCommentButton.textContent = "Comentar";
+    shoutDiv.appendChild(shoutCommentButton);
 
     content.appendChild(shoutDiv);
+
+    for (var i = 0, len = shout.comments.length; i < len; i++) {
+        printComment(shout.comments[i]);
+    }
+}
+
+function printComment(comment) {
+    var commentDiv = document.getElementById(comment.shout_id + "_comments");
+
+    var commentUser = document.createElement("h5");
+    commentUser.textContent = comment.email + " comento a las " + comment.date + ":";
+    commentDiv.appendChild(commentUser);
+
+    var commentContent = document.createElement("p");
+    var node = document.createTextNode(comment.content);
+    commentContent.appendChild(node);
+    commentDiv.appendChild(commentContent);
 }
 
 function shout() {
@@ -37,10 +74,24 @@ function shout() {
     addShout(content.value);
 }
 
+function comment(shoutId) {
+    var content = document.getElementById(shoutId + "_comment");
+    addComment(content.value, shoutId);
+}
+
 function addShout(content) {
     var ShoutAction = {
-        action: "add",
+        action: "addShout",
         content: content
     };
     socket.send(JSON.stringify(ShoutAction));
+}
+
+function addComment(content, shoutId) {
+    var CommentAction = {
+        action: "addComment",
+        content: content,
+        shout_id: shoutId
+    };
+    socket.send(JSON.stringify(CommentAction));
 }

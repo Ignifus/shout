@@ -63,8 +63,8 @@ public class UserController implements Serializable {
     }
 
     public void logout() {
-        loginManager.setCurrentUser(null);
         database.authUser(connection, loginManager.getCurrentUser().getEmail(), false);
+        loginManager.setCurrentUser(null);
     }
 
     public List<User> getUsers() {
