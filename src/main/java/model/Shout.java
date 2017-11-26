@@ -14,8 +14,9 @@ public class Shout {
     private User user;
     private Date date;
     private String content;
+    private String image;
 
-    public Shout(User user, Date date, String content) {
+    public Shout(User user, Date date, String content, String image) {
         this.user = user;
         this.date = date;
         this.content = content;
@@ -42,5 +43,13 @@ public class Shout {
 
     public String getContent() {
         return content;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

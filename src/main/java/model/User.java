@@ -12,6 +12,7 @@ public class User {
     private String hash;
     private String salt;
     private String email;
+    private String avatar;
 
     private boolean isAuthenticated;
 
@@ -49,4 +50,12 @@ public class User {
     }
 
     public void setAuthenticated(boolean auth) { isAuthenticated = auth; }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
 }

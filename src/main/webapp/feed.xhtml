@@ -20,11 +20,18 @@
             <h3>Diga algo!</h3>
 
             <span>Contenido:<br />
-            <textarea name="shout_content" id="shout_content" rows="2" cols="50" style="resize:none;"/>
-        </span>
-
+                <textarea name="shout_content" id="shout_content" rows="2" cols="50" style="resize:none;"/>
+            </span>
+            <img id="shout-image" height="150"/>
+            <br/>
+            <input id="shout-image-input" type='file' />
+            <p style="display:none" id="shout-image-b64"></p>
+            <br/>
             <button class="button" onClick="shout()">Shout</button><br />
 
+            <h:form>
+                <h:commandLink action="#{profile.enter}" value="Mi Perfil" />
+            </h:form>
             <h:form>
                 <h:commandLink action="#{feed.logout}" value="Desconectarse" />
             </h:form>
@@ -44,5 +51,23 @@
 
     </ui:define>
 </ui:composition>
+
+<script>
+    function readShoutImage() {
+        if (this.files &amp;&amp; this.files[0]) {
+
+            var reader = new FileReader();
+
+            reader.addEventListener("load", function(e) {
+                document.getElementById("shout-image").src       = e.target.result;
+                document.getElementById("shout-image.b64").innerHTML = e.target.result;
+            });
+
+            reader.readAsDataURL( this.files[0] );
+        }
+    }
+
+    document.getElementById("shout-image-input").addEventListener("change", readShoutImage);
+</script>
 
 </html>

@@ -73,6 +73,7 @@ public class FeedSessionHandler {
                 .add("email", shout.getUser().getEmail())
                 .add("date", df.format(shout.getDate()))
                 .add("content", shout.getContent())
+                .add("image", shout.getImage())
                 .add("id", shout.getId());
 
         JsonArrayBuilder commentArray = Json.createArrayBuilder();

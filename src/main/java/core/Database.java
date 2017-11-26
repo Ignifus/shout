@@ -66,6 +66,16 @@ public class Database implements Serializable{
         connection.getTransaction().commit();
     }
 
+    public void setUserAvatar(EntityManager connection, User u, String path) {
+        connection.getTransaction().begin();
+        u.setAvatar(path);
+        connection.getTransaction().commit();
+    }
+
+    public String getUserAvatar(EntityManager connection, User u) {
+        return connection.find(User.class, u.getId()).getAvatar();
+    }
+
     public List<Shout> getShouts(EntityManager connection) {
         return connection.createQuery(
                 "SELECT s FROM Shout s", Shout.class).getResultList();

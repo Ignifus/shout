@@ -68,7 +68,8 @@ public class FeedWebSocket {
                     Shout shout = new Shout(
                             database.getUser(webSocketSession.getConnection(), webSocketSession.getUser().getEmail()),
                             new Date(),
-                            jsonMessage.getString("content"));
+                            jsonMessage.getString("content"),
+                            jsonMessage.getString("image"));
                     handler.addShout(session, shout);
                     break;
                 case "addComment":

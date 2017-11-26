@@ -27,6 +27,11 @@ function printShout(shout) {
     shoutDivContent.appendChild(node);
     shoutDiv.appendChild(shoutDivContent);
 
+    var shoutDivImage = document.createElement("img");
+    shoutDivImage.setAttribute("src", shout.image);
+    shoutDivImage.setAttribute("style", "height=150");
+    shoutDiv.appendChild(shoutDivImage);
+
     shoutDiv.setAttribute("id", shout.id);
 
     var shoutCommentsTitle = document.createElement("h5");
@@ -71,7 +76,8 @@ function printComment(comment) {
 
 function shout() {
     var content = document.getElementById("shout_content");
-    addShout(content.value);
+    var image = document.getElementById("shout-image");
+    addShout(content.value, image.innerHTML);
 }
 
 function comment(shoutId) {
@@ -79,10 +85,11 @@ function comment(shoutId) {
     addComment(content.value, shoutId);
 }
 
-function addShout(content) {
+function addShout(content, image) {
     var ShoutAction = {
         action: "addShout",
-        content: content
+        content: content,
+        image: image
     };
     socket.send(JSON.stringify(ShoutAction));
 }

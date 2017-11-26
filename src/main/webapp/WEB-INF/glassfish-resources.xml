@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE resources PUBLIC "-//GlassFish.org//DTD GlassFish Application Server 3.1 Resource Definitions//EN" "http://glassfish.org/dtds/glassfish-resources_1_5.dtd">
+
+
 <resources>
+    <!--<property name="alternatedocroot_1" value="from=*.jpg dir=."/>-->
     <!--<jdbc-connection-pool-->
             <!--datasource-classname="org.postgresql.ds.PGConnectionPoolDataSource"-->
             <!--name="java:app/postgres"-->
