@@ -29,7 +29,7 @@ function printShout(shout) {
 
     var shoutDivImage = document.createElement("img");
     shoutDivImage.setAttribute("src", shout.image);
-    shoutDivImage.setAttribute("style", "height=150");
+    shoutDivImage.setAttribute("height", "150");
     shoutDiv.appendChild(shoutDivImage);
 
     shoutDiv.setAttribute("id", shout.id);
@@ -76,7 +76,7 @@ function printComment(comment) {
 
 function shout() {
     var content = document.getElementById("shout_content");
-    var image = document.getElementById("shout-image");
+    var image = document.getElementById("shout-image-b64");
     addShout(content.value, image.innerHTML);
 }
 

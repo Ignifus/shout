@@ -20,6 +20,7 @@ public class Shout {
         this.user = user;
         this.date = date;
         this.content = content;
+        this.image = image;
     }
 
     public Shout() {

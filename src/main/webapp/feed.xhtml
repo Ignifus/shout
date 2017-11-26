@@ -49,25 +49,25 @@
             </ul>
         </footer>
 
+        <script>
+            function readShoutImage() {
+                if (this.files &amp;&amp; this.files[0]) {
+
+                    var reader = new FileReader();
+
+                    reader.addEventListener("load", function(e) {
+                        document.getElementById("shout-image").src       = e.target.result;
+                        document.getElementById("shout-image-b64").innerHTML = e.target.result;
+                    });
+
+                    reader.readAsDataURL( this.files[0] );
+                }
+            }
+
+            document.getElementById("shout-image-input").addEventListener("change", readShoutImage);
+        </script>
+
     </ui:define>
 </ui:composition>
-
-<script>
-    function readShoutImage() {
-        if (this.files &amp;&amp; this.files[0]) {
-
-            var reader = new FileReader();
-
-            reader.addEventListener("load", function(e) {
-                document.getElementById("shout-image").src       = e.target.result;
-                document.getElementById("shout-image.b64").innerHTML = e.target.result;
-            });
-
-            reader.readAsDataURL( this.files[0] );
-        }
-    }
-
-    document.getElementById("shout-image-input").addEventListener("change", readShoutImage);
-</script>
 
 </html>
