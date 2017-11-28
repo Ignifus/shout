@@ -4,6 +4,8 @@ import controller.UserController;
 import model.User;
 
 import javax.enterprise.context.RequestScoped;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.constraints.Email;
@@ -36,8 +38,17 @@ public class Index implements Serializable {
         if (controller.getCurrentUser() != null)
             return "feed.xhtml?faces-redirect=true&email=" + controller.getCurrentUser().getEmail();
 
-        controller.createUser(email, password);
-        User u = controller.login(email, password);
+        User u = null;
+
+        try {
+            controller.createUser(email, password);
+            u = controller.login(email, password);
+        }
+        catch (IllegalArgumentException e) {
+            FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Usuario ya existe.", null);
+            FacesContext.getCurrentInstance().addMessage(null, msg);
+            return "index.xhtml";
+        }
 
         return "feed.xhtml?faces-redirect=true&email=" + u.getEmail();
     }

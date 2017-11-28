@@ -38,7 +38,7 @@ public class Login implements Serializable {
 
         User u = controller.login(email, password);
 
-        if(u != null) {
+        if (u != null) {
             return "feed.xhtml?faces-redirect=true&email=" + u.getEmail();
         }
         else {

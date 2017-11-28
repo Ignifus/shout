@@ -31,6 +31,12 @@ public class Database implements Serializable{
 
     public void addUser(EntityManager connection, User u) {
         connection.getTransaction().begin();
+
+        if (getUser(connection, u.getEmail()) != null) {
+            connection.getTransaction().commit();
+            throw new IllegalArgumentException("User already exists.");
+        }
+
         connection.persist(u);
         connection.getTransaction().commit();
     }

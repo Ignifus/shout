@@ -30,6 +30,10 @@ function printShout(shout) {
     var shoutDivImage = document.createElement("img");
     shoutDivImage.setAttribute("src", shout.image);
     shoutDivImage.setAttribute("height", "150");
+    if (shout.image === "")
+        shoutDivImage.setAttribute("style", "display:none;");
+    else
+        shoutDivImage.setAttribute("style", "display:block;");
     shoutDiv.appendChild(shoutDivImage);
 
     shoutDiv.setAttribute("id", shout.id);
@@ -92,6 +96,9 @@ function addShout(content, image) {
         image: image
     };
     socket.send(JSON.stringify(ShoutAction));
+
+    document.getElementById("shout-image-input").value = "";
+    document.getElementById("shout_content").value = "";
 }
 
 function addComment(content, shoutId) {

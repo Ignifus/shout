@@ -33,6 +33,7 @@ public class FeedWebSocket {
 
         User user = database.getUser(connection, email);
 
+
         if (user != null) {
             if (user.isAuthenticated())
                 handler.addSession(new WebSocketSession(user, connection, session));
