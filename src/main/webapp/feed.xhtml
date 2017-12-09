@@ -4,6 +4,7 @@
 
 <html xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
 >
 
 <ui:composition template="template.xhtml">
@@ -16,6 +17,10 @@
 
         <h:inputHidden value="#{feed.userMail}" id="userMail"/>
         <h:inputHidden value="#{feed.userKey}" id="userKey"/>
+
+        <h:form>
+            <p:remoteCommand name="onload" action="#{feed.onload}" autoRun="true" />
+        </h:form>
 
         <div class="shout-form">
             <h2>Shouts</h2>
@@ -30,6 +35,7 @@
             <input id="shout-image-input" type='file' />
             <p style="display:none" id="shout-image-b64"></p>
             <br/>
+            <br/>
             <button class="button" onClick="shout()">Shout</button><br />
 
             <h:form>
@@ -40,6 +46,16 @@
             </h:form>
 
             <h2>Feed</h2>
+
+            <select style="margin-bottom:20px;" id="shout-filter" onclick="filterShouts(this);">
+                <option value="allShouts">Todos los Shout</option>
+                <option value="followingShouts">Shouts de usuarios que sigo</option>
+                <option value="userShouts">Mis Shouts</option>
+            </select>
+
+            <input id="searchUser" type="text" placeholder="Buscar usuario (enter para buscar)"/>
+
+            <br/>
 
             <div class="feed-container" id="feed-container">
 

@@ -1,15 +1,13 @@
 package core;
 
-import model.Comment;
-import model.Upvote;
-import model.Shout;
-import model.User;
+import model.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
@@ -88,6 +86,18 @@ public class Database implements Serializable{
                 "SELECT s FROM Shout s", Shout.class).getResultList();
     }
 
+    public List<Shout> getShouts(EntityManager connection, int userId) {
+        TypedQuery<Shout> query = connection.createQuery(
+                "SELECT s FROM Shout s WHERE s.user.id = :userId", Shout.class);
+
+        try {
+            return query.setParameter("userId", userId).getResultList();
+        }
+        catch (NoResultException e) {
+            return new ArrayList<>();
+        }
+    }
+
     public void addShout(EntityManager connection, Shout s) {
         connection.getTransaction().begin();
         connection.persist(s);
@@ -157,5 +167,46 @@ public class Database implements Serializable{
         u.setHash(password.hash);
         u.setSalt(password.salt);
         connection.getTransaction().commit();
+    }
+
+    public int followCount(EntityManager connection, int followerId, String followedEmail) {
+        int followedId = getUser(connection, followedEmail).getId();
+
+        TypedQuery<Follow> query = connection.createQuery(
+                "SELECT f FROM Follow f WHERE f.followerUser.id = :followerId AND f.followedUser.id = :followedId", Follow.class);
+
+        try {
+            return query.setParameter("followerId", followerId).setParameter("followedId", followedId).getResultList().size();
+        }
+        catch (NoResultException e) {
+            return 0;
+        }
+    }
+
+    public void follow(EntityManager connection, Follow follow) {
+        connection.getTransaction().begin();
+        connection.persist(follow);
+        connection.getTransaction().commit();
+    }
+
+    public void unfollow(EntityManager connection, Follow follow) {
+        connection.getTransaction().begin();
+        if (!connection.contains(follow)) {
+            follow = connection.merge(follow);
+        }
+        connection.remove(follow);
+        connection.getTransaction().commit();
+    }
+
+    public List<Follow> getFollows(EntityManager connection, int userId) {
+        TypedQuery<Follow> query = connection.createQuery(
+                "SELECT f FROM Follow f WHERE f.followerUser.id = :userId", Follow.class);
+
+        try {
+            return query.setParameter("userId", userId).getResultList();
+        }
+        catch (NoResultException e) {
+            return new ArrayList<>();
+        }
     }
 }

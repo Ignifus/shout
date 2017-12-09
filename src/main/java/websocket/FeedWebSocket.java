@@ -1,10 +1,7 @@
 package websocket;
 
 import core.Database;
-import model.Comment;
-import model.Upvote;
-import model.Shout;
-import model.User;
+import model.*;
 
 import javax.inject.Inject;
 import javax.json.Json;
@@ -64,6 +61,8 @@ public class FeedWebSocket {
         try (JsonReader reader = Json.createReader(new StringReader(message))) {
             JsonObject jsonMessage = reader.readObject();
             WebSocketSession webSocketSession = handler.getSession(session);
+            EntityManager conn = webSocketSession.getConnection();
+            User user = webSocketSession.getUser();
 
             switch(jsonMessage.getString("action")) {
                 case "addShout":
@@ -76,15 +75,42 @@ public class FeedWebSocket {
                     }
 
                     Shout shout = new Shout(
-                            database.getUser(webSocketSession.getConnection(), webSocketSession.getUser().getEmail()),
+                            user,
                             new Date(),
                             shoutContent,
                             jsonMessage.getString("image"));
                     handler.addShout(session, shout);
                     break;
+                case "filterShouts":
+                    handler.filterShouts(webSocketSession, user.getId(), jsonMessage.getString("filter"));
+                    break;
+                case "searchUser":
+                    try {
+                        handler.filterShouts(webSocketSession, database.getUser(conn, jsonMessage.getString("user")).getId(), "userShouts");
+                    }
+                    catch (Exception e) {
+                        handler.sendError(session, "Usuario no encontrado!");
+                    }
+                    break;
+                case "follow":
+                    try {
+                        database.follow(conn, new Follow(user, database.getUser(conn, jsonMessage.getString("user"))));
+                    }
+                    catch (Exception e) {
+                        handler.sendError(session, "Ya esta siguiendo a este usuario!");
+                    }
+                    break;
+                case "unfollow":
+                    try {
+                        database.unfollow(conn, new Follow(user, database.getUser(conn, jsonMessage.getString("user"))));
+                    }
+                    catch (Exception e) {
+                        handler.sendError(session, "No esta siguiendo a este usuario!");
+                    }
+                    break;
                 case "addUpvote":
                     Upvote upvote = new Upvote(
-                            database.getUser(webSocketSession.getConnection(), webSocketSession.getUser().getEmail()),
+                            user,
                             database.getShout(webSocketSession.getConnection(), jsonMessage.getInt("shout_id"))
                     );
                     handler.addUpvote(session, upvote);
@@ -98,8 +124,8 @@ public class FeedWebSocket {
                         break;
                     }
 
-                    Comment comment = new Comment(database.getUser(
-                            webSocketSession.getConnection(), webSocketSession.getUser().getEmail()),
+                    Comment comment = new Comment(
+                            user,
                             database.getShout(webSocketSession.getConnection(), jsonMessage.getInt("shout_id")),
                             new Date(),
                             commentContent);

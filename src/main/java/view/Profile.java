@@ -1,6 +1,7 @@
 package view;
 
 import controller.UserController;
+import model.User;
 import org.primefaces.context.RequestContext;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
@@ -82,6 +83,17 @@ public class Profile implements Serializable {
             return;
 
         controller.setUserPassword(this.password);
+    }
+
+    public void onload() {
+        User u = controller.getCurrentUser();
+        try {
+            if (u == null)
+                FacesContext.getCurrentInstance().getExternalContext().redirect("/login.xhtml");
+        }
+        catch(Exception e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "ERROR", e);
+        }
     }
 
     public Part getAvatar() {

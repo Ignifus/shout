@@ -2,6 +2,7 @@ package websocket;
 
 import core.Database;
 import model.Comment;
+import model.Follow;
 import model.Upvote;
 import model.Shout;
 
@@ -12,13 +13,12 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.spi.JsonProvider;
+import javax.persistence.EntityManager;
 import javax.websocket.Session;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,10 +37,8 @@ public class FeedSessionHandler {
     public void addSession(WebSocketSession session) {
         sessions.put(session.getSession().getId(), session);
 
-        for (Shout shout : database.getShouts(session.getConnection())) {
-            JsonObject addMessage = createAddShoutMessage(session.getSession(), shout);
-            sendToSession(session.getSession(), addMessage);
-        }
+        JsonObject addMessage = createAddShoutsMessage(session.getSession(), database.getShouts(session.getConnection()), false);
+        sendToSession(session.getSession(), addMessage);
     }
 
     public void removeSession(Session session) {
@@ -51,8 +49,31 @@ public class FeedSessionHandler {
     public void addShout(Session session, Shout shout) {
         database.addShout(sessions.get(session.getId()).getConnection(), shout);
 
-        JsonObject addMessage = createAddShoutMessage(session, shout);
+        List<Shout> shouts = new ArrayList<>();
+        shouts.add(shout);
+        JsonObject addMessage = createAddShoutsMessage(session, shouts, false);
         sendToAllConnectedSessions(addMessage);
+    }
+
+    public void filterShouts(WebSocketSession session, int userId, String filter) {
+        switch(filter) {
+            case "allShouts":
+                JsonObject addShoutsMessage = createAddShoutsMessage(session.getSession(), database.getShouts(session.getConnection()), true);
+                sendToSession(session.getSession(), addShoutsMessage);
+                break;
+            case "followingShouts":
+                List<Shout> shouts = new ArrayList<>();
+                for(Follow f : database.getFollows(session.getConnection(), session.getUser().getId())) {
+                    shouts.addAll(database.getShouts(session.getConnection(), f.getFollowedUser().getId()));
+                }
+                JsonObject addFollowingShoutsMessage = createAddShoutsMessage(session.getSession(), shouts, true);
+                sendToSession(session.getSession(), addFollowingShoutsMessage);
+                break;
+            case "userShouts":
+                JsonObject addUserShoutsMessage = createAddShoutsMessage(session.getSession(), database.getShouts(session.getConnection(), userId), true);
+                sendToSession(session.getSession(), addUserShoutsMessage);
+                break;
+        }
     }
 
     public void addUpvote(Session session, Upvote upvote) {
@@ -82,22 +103,35 @@ public class FeedSessionHandler {
         return builder.build();
     }
 
-    private JsonObject createAddShoutMessage(Session session, Shout shout) {
+    private JsonObject createAddShoutsMessage(Session session, List<Shout> shouts, boolean isFilter) {
+        JsonObjectBuilder builder = JsonProvider.provider().createObjectBuilder();
+        JsonArrayBuilder shoutArray = Json.createArrayBuilder();
+        for (Shout shout : shouts) {
+            shoutArray.add(createAddShoutMessage(session, shout, isFilter));
+        }
+        builder.add("shouts", shoutArray)
+                .add("isFilter", isFilter)
+                .add("action", "addShout");
+        return builder.build();
+    }
+
+    private JsonObject createAddShoutMessage(Session session, Shout shout, boolean isFilter) {
         JsonProvider provider = JsonProvider.provider();
 
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
-        List<Comment> comments = database.getComments(sessions.get(session.getId()).getConnection(), shout.getId());
+        EntityManager conn = sessions.get(session.getId()).getConnection();
+        List<Comment> comments = database.getComments(conn, shout.getId());
 
         JsonObjectBuilder builder = provider.createObjectBuilder()
-                .add("action", "addShout")
                 .add("email", shout.getUser().getEmail())
                 .add("date", df.format(shout.getDate()))
                 .add("content", shout.getContent())
                 .add("image", shout.getImage())
                 .add("id", shout.getId())
-                .add("canUpvote", database.canUserUpvote(sessions.get(session.getId()).getConnection(), sessions.get(session.getId()).getUser().getId(), shout.getId()))
-                .add("upvotes", database.getUpvotes(sessions.get(session.getId()).getConnection(), shout.getId()));
+                .add("canUpvote", database.canUserUpvote(conn, sessions.get(session.getId()).getUser().getId(), shout.getId()))
+                .add("canFollow", database.followCount(conn, sessions.get(session.getId()).getUser().getId(), shout.getUser().getEmail()) == 0)
+                .add("upvotes", database.getUpvotes(conn, shout.getId()));
 
         JsonArrayBuilder commentArray = Json.createArrayBuilder();
 

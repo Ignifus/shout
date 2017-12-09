@@ -4,6 +4,7 @@
 
 <html xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
       xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
 
 <ui:composition template="template.xhtml">
@@ -15,6 +16,10 @@
             <h1>Shout</h1>
             <p>Una red social para expresarse.</p>
         </header>
+
+        <h:form>
+            <p:remoteCommand name="onload" action="#{index.onload}" autoRun="true" />
+        </h:form>
 
         <h:form id="signup-form">
             <div>

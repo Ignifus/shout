@@ -13,6 +13,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Named("index")
 @RequestScoped
@@ -49,6 +51,17 @@ public class Index implements Serializable {
         }
 
         return "feed.xhtml?faces-redirect=true";
+    }
+
+    public void onload() {
+        User u = controller.getCurrentUser();
+        try {
+            if (u != null)
+                FacesContext.getCurrentInstance().getExternalContext().redirect("/feed.xhtml");
+        }
+        catch(Exception e) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "ERROR", e);
+        }
     }
 
     public String getPassword() {
