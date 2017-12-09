@@ -7,6 +7,7 @@
         <class>model.User</class>
         <class>model.Shout</class>
         <class>model.Comment</class>
+        <class>model.Upvote</class>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/shout"/>
@@ -18,6 +19,8 @@
                       value="script"/>
             <property name="javax.persistence.schema-generation.create-script-source"
                       value="META-INF/sql/create.sql" />
+            <property name="javax.persistence.sql-load-script-source"
+                      value="META-INF/sql/data.sql" />
         </properties>
     </persistence-unit>
 </persistence>

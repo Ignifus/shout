@@ -2,6 +2,7 @@ package websocket;
 
 import core.Database;
 import model.Comment;
+import model.Upvote;
 import model.Shout;
 import model.User;
 
@@ -18,7 +19,7 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@ServerEndpoint("/feed/{email}")
+@ServerEndpoint(value = "/feed/{email}", configurator = EndpointConfigurator.class)
 public class FeedWebSocket {
 
     @Inject
@@ -28,14 +29,14 @@ public class FeedWebSocket {
     private Database database;
 
     @OnOpen
-    public void open(@PathParam("email") String email, Session session) {
+    public void open(@PathParam("email") String email, Session session, EndpointConfig ec) {
         EntityManager connection = database.getConnection();
 
         User user = database.getUser(connection, email);
-
+        String wskey = (String)ec.getUserProperties().get("wskey");
 
         if (user != null) {
-            if (user.isAuthenticated())
+            if (wskey.equals(user.getWskey()))
                 handler.addSession(new WebSocketSession(user, connection, session));
             else {
                 connection.close();
@@ -66,19 +67,42 @@ public class FeedWebSocket {
 
             switch(jsonMessage.getString("action")) {
                 case "addShout":
+                    String shoutContent = jsonMessage.getString("content");
+
+                    if (shoutContent == null || shoutContent.isEmpty())
+                    {
+                        handler.sendError(session, "Por favor ingrese contenido.");
+                        break;
+                    }
+
                     Shout shout = new Shout(
                             database.getUser(webSocketSession.getConnection(), webSocketSession.getUser().getEmail()),
                             new Date(),
-                            jsonMessage.getString("content"),
+                            shoutContent,
                             jsonMessage.getString("image"));
                     handler.addShout(session, shout);
                     break;
+                case "addUpvote":
+                    Upvote upvote = new Upvote(
+                            database.getUser(webSocketSession.getConnection(), webSocketSession.getUser().getEmail()),
+                            database.getShout(webSocketSession.getConnection(), jsonMessage.getInt("shout_id"))
+                    );
+                    handler.addUpvote(session, upvote);
+                    break;
                 case "addComment":
+                    String commentContent = jsonMessage.getString("content");
+
+                    if (commentContent == null || commentContent.isEmpty())
+                    {
+                        handler.sendError(session, "Por favor ingrese contenido.");
+                        break;
+                    }
+
                     Comment comment = new Comment(database.getUser(
                             webSocketSession.getConnection(), webSocketSession.getUser().getEmail()),
                             database.getShout(webSocketSession.getConnection(), jsonMessage.getInt("shout_id")),
                             new Date(),
-                            jsonMessage.getString("content"));
+                            commentContent);
                     handler.addComment(session, comment);
                     break;
             }

@@ -31,15 +31,18 @@ public class Login implements Serializable {
 
     public String login() {
         if (controller.getCurrentUser() != null)
-            return "feed.xhtml?faces-redirect=true&email=" + controller.getCurrentUser().getEmail();
+            return "feed.xhtml?faces-redirect=true";
 
-        if (email == null && password == null)
+        if (email == null && password == null) {
+            FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Ingrese credenciales", null);
+            FacesContext.getCurrentInstance().addMessage(null, msg);
             return "login.xhtml";
+        }
 
         User u = controller.login(email, password);
 
         if (u != null) {
-            return "feed.xhtml?faces-redirect=true&email=" + u.getEmail();
+            return "feed.xhtml?faces-redirect=true";
         }
         else {
             FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Contraseña o email incorrecto", null);

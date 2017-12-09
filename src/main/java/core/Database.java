@@ -1,6 +1,7 @@
 package core;
 
 import model.Comment;
+import model.Upvote;
 import model.Shout;
 import model.User;
 
@@ -51,7 +52,7 @@ public class Database implements Serializable{
                 "SELECT u FROM User u WHERE u.email = :email", User.class);
 
         try {
-            return query.setParameter("email",email).getSingleResult();
+            return query.setParameter("email", email).getSingleResult();
         }
         catch (NoResultException e) {
             return null;
@@ -64,11 +65,11 @@ public class Database implements Serializable{
         connection.getTransaction().commit();
     }
 
-    public void authUser(EntityManager connection, String email, boolean auth) {
+    public void authUser(EntityManager connection, String email, String key) {
         User u = getUser(connection, email);
 
         connection.getTransaction().begin();
-        u.setAuthenticated(auth);
+        u.setWskey(key);
         connection.getTransaction().commit();
     }
 
@@ -119,5 +120,42 @@ public class Database implements Serializable{
         catch (NoResultException e) {
             return null;
         }
+    }
+
+    public void addUpvote(EntityManager connection, Upvote upvote) {
+        connection.getTransaction().begin();
+        connection.persist(upvote);
+        connection.getTransaction().commit();
+    }
+
+    public int getUpvotes(EntityManager connection, int shoutId) {
+        TypedQuery<Upvote> query = connection.createQuery(
+                "SELECT u FROM Upvote u WHERE u.shout.id = :shoutId", Upvote.class);
+
+        try {
+            return query.setParameter("shoutId", shoutId).getResultList().size();
+        }
+        catch (NoResultException e) {
+            return 0;
+        }
+    }
+
+    public boolean canUserUpvote(EntityManager connection, int userId, int shoutId) {
+        TypedQuery<Upvote> query = connection.createQuery(
+                "SELECT u FROM Upvote u WHERE u.user.id = :userId AND u.shout.id = :shoutId", Upvote.class);
+
+        try {
+            return query.setParameter("userId", userId).setParameter("shoutId", shoutId).getResultList().size() == 0;
+        }
+        catch (NoResultException e) {
+            return true;
+        }
+    }
+
+    public void setUserPassword(EntityManager connection, User u, Security.Password password) {
+        connection.getTransaction().begin();
+        u.setHash(password.hash);
+        u.setSalt(password.salt);
+        connection.getTransaction().commit();
     }
 }

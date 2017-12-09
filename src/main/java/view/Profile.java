@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.Part;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.*;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
@@ -29,6 +30,9 @@ public class Profile implements Serializable {
     private UserController controller;
 
     private Part avatar;
+
+    @Size(min = 8, max = 20)
+    private String password;
 
     public void enter() {
         ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
@@ -73,12 +77,27 @@ public class Profile implements Serializable {
         }
     }
 
+    public void changePassword() {
+        if (controller.getCurrentUser() == null)
+            return;
+
+        controller.setUserPassword(this.password);
+    }
+
     public Part getAvatar() {
         return avatar;
     }
 
     public void setAvatar(Part avatar) {
         this.avatar = avatar;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getViewName() {

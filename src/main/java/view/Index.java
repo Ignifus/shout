@@ -36,13 +36,11 @@ public class Index implements Serializable {
 
     public String register() {
         if (controller.getCurrentUser() != null)
-            return "feed.xhtml?faces-redirect=true&email=" + controller.getCurrentUser().getEmail();
-
-        User u = null;
+            return "feed.xhtml?faces-redirect=true";
 
         try {
             controller.createUser(email, password);
-            u = controller.login(email, password);
+            controller.login(email, password);
         }
         catch (IllegalArgumentException e) {
             FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Usuario ya existe.", null);
@@ -50,7 +48,7 @@ public class Index implements Serializable {
             return "index.xhtml";
         }
 
-        return "feed.xhtml?faces-redirect=true&email=" + u.getEmail();
+        return "feed.xhtml?faces-redirect=true";
     }
 
     public String getPassword() {

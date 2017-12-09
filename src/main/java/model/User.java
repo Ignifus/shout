@@ -14,12 +14,13 @@ public class User {
     private String email;
     private String avatar;
 
-    private boolean isAuthenticated;
+    private String wskey;
 
     public User(String email, String hash, String salt) {
         this.hash = hash;
         this.salt = salt;
         this.email = email;
+        this.wskey = "";
     }
 
     public User() {
@@ -45,11 +46,11 @@ public class User {
         return email;
     }
 
-    public boolean isAuthenticated() {
-        return isAuthenticated;
+    public String getWskey() {
+        return wskey;
     }
 
-    public void setAuthenticated(boolean auth) { isAuthenticated = auth; }
+    public void setWskey(String key) { this.wskey = key; }
 
     public String getAvatar() {
         return avatar;
@@ -57,5 +58,13 @@ public class User {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 }

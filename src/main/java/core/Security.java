@@ -40,6 +40,10 @@ public class Security implements Serializable {
         return generatePassword(userPassword, Base64.getDecoder().decode(dbPassword.salt)).hash.equals(dbPassword.hash);
     }
 
+    public String generateToken() {
+        return Base64.getEncoder().encodeToString(nextSalt());
+    }
+
     private byte[] nextSalt() {
         byte[] salt = new byte[16];
         RANDOM.nextBytes(salt);

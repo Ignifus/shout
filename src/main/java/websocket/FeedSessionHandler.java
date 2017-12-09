@@ -2,6 +2,7 @@ package websocket;
 
 import core.Database;
 import model.Comment;
+import model.Upvote;
 import model.Shout;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -54,11 +55,31 @@ public class FeedSessionHandler {
         sendToAllConnectedSessions(addMessage);
     }
 
+    public void addUpvote(Session session, Upvote upvote) {
+        database.addUpvote(sessions.get(session.getId()).getConnection(), upvote);
+
+        JsonObject addUpvoteMessage = createAddUpvoteMessage(session, upvote);
+        sendToAllConnectedSessions(addUpvoteMessage);
+    }
+
     public void addComment(Session session, Comment comment) {
         database.addComment(sessions.get(session.getId()).getConnection(), comment);
 
         JsonObject addMessage = createAddCommentMessage(comment);
         sendToAllConnectedSessions(addMessage);
+    }
+
+    public void sendError(Session session, String error) {
+        JsonObject addMessage = createErrorMessage(error);
+        sendToSession(session, addMessage);
+    }
+
+    private JsonObject createErrorMessage(String error) {
+        JsonProvider provider = JsonProvider.provider();
+        JsonObjectBuilder builder = provider.createObjectBuilder()
+                .add("action", "error")
+                .add("error", error);
+        return builder.build();
     }
 
     private JsonObject createAddShoutMessage(Session session, Shout shout) {
@@ -74,7 +95,9 @@ public class FeedSessionHandler {
                 .add("date", df.format(shout.getDate()))
                 .add("content", shout.getContent())
                 .add("image", shout.getImage())
-                .add("id", shout.getId());
+                .add("id", shout.getId())
+                .add("canUpvote", database.canUserUpvote(sessions.get(session.getId()).getConnection(), sessions.get(session.getId()).getUser().getId(), shout.getId()))
+                .add("upvotes", database.getUpvotes(sessions.get(session.getId()).getConnection(), shout.getId()));
 
         JsonArrayBuilder commentArray = Json.createArrayBuilder();
 
@@ -85,6 +108,13 @@ public class FeedSessionHandler {
         builder.add("comments", commentArray);
 
         return builder.build();
+    }
+
+    private JsonObject createAddUpvoteMessage(Session session, Upvote upvote) {
+        return JsonProvider.provider().createObjectBuilder()
+                .add("action", "addUpvote")
+                .add("shout_id", upvote.getShout().getId())
+                .build();
     }
 
     private JsonObject createAddCommentMessage(Comment comment) {

@@ -14,6 +14,17 @@ public class Feed implements Serializable {
     @Inject
     private UserController userController;
 
+    private String userKey;
+    private String userMail;
+
+    public String getUserMail() {
+        return userController.getCurrentUser().getEmail();
+    }
+
+    public String getUserKey() {
+        return userController.getCurrentUser().getWskey();
+    }
+
     public String getViewName() {
         return "Feed";
     }
@@ -27,7 +38,7 @@ public class Feed implements Serializable {
         User u = userController.getCurrentUser();
 
         if (u != null)
-            return "feed.xhtml?faces-redirect=true&email=" + u.getEmail();
+            return "feed.xhtml?faces-redirect=true";
         else
             return "login.xhtml";
     }

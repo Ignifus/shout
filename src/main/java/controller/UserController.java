@@ -53,7 +53,7 @@ public class UserController implements Serializable {
 
         if(security.verifyPassword(password, new Security.Password(u.getHash(), u.getSalt())))
         {
-            database.authUser(connection, email, true);
+            database.authUser(connection, email, security.generateToken());
             loginManager.setCurrentUser(u);
             return u;
         }
@@ -66,7 +66,6 @@ public class UserController implements Serializable {
         if (loginManager.getCurrentUser() == null)
             return;
 
-        database.authUser(connection, loginManager.getCurrentUser().getEmail(), false);
         loginManager.setCurrentUser(null);
     }
 
@@ -79,6 +78,13 @@ public class UserController implements Serializable {
             return null;
 
         return database.getUserAvatar(connection, loginManager.getCurrentUser());
+    }
+
+    public void setUserPassword(String password) {
+        if (loginManager.getCurrentUser() == null)
+            return;
+
+        database.setUserPassword(connection, loginManager.getCurrentUser(), security.generatePassword(password, null));
     }
 
     public List<User> getUsers() {

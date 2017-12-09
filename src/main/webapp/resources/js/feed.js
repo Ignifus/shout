@@ -1,15 +1,28 @@
-var url = new URL(window.location);
-var email = url.searchParams.get("email");
-var socket = new WebSocket("ws://localhost:8080/feed/" + email);
-socket.onmessage = onMessage;
+var socket;
+
+$('document').ready(function(){
+    socket = new WebSocket("ws://localhost:8080/feed/" + $("#userMail").val(), $("#userKey").val());
+    socket.onmessage = onMessage;
+});
+
+function displayNotification(message) {
+    $("#notification-text").text(message);
+    $(".notification").fadeIn().delay(3000).fadeOut();
+}
 
 function onMessage(event) {
     var message = JSON.parse(event.data);
     if (message.action === "addShout") {
         printShout(message);
     }
+    else if (message.action === "addUpvote") {
+        printUpvote(message);
+    }
     else if (message.action === "addComment") {
         printComment(message);
+    }
+    else if (message.action === "error") {
+        displayNotification(message.error);
     }
 }
 
@@ -36,6 +49,10 @@ function printShout(shout) {
         shoutDivImage.setAttribute("style", "display:block;");
     shoutDiv.appendChild(shoutDivImage);
 
+    var shoutUpvotes = document.createElement("p");
+    shoutUpvotes.innerHTML = '<span id="' + shout.id + '_upvotes">' + shout.upvotes + '</span> me gusta';
+    shoutDiv.appendChild(shoutUpvotes);
+
     shoutDiv.setAttribute("id", shout.id);
 
     var shoutCommentsTitle = document.createElement("h5");
@@ -58,11 +75,25 @@ function printShout(shout) {
     shoutCommentButton.textContent = "Comentar";
     shoutDiv.appendChild(shoutCommentButton);
 
+    if (shout.canUpvote) {
+        var shoutUpvoteButton = document.createElement("button");
+        shoutUpvoteButton.setAttribute("onClick", "upvote(" + shout.id+ ")");
+        shoutUpvoteButton.textContent = "Me gusta";
+        shoutUpvoteButton.setAttribute("id", shout.id + "_upvote_button");
+        shoutDiv.appendChild(shoutUpvoteButton);
+    }
+
     content.appendChild(shoutDiv);
 
     for (var i = 0, len = shout.comments.length; i < len; i++) {
         printComment(shout.comments[i]);
     }
+}
+
+function printUpvote(upvote) {
+    var element = $("#" + upvote.shout_id + "_upvotes");
+    var value = parseInt(element.text(), 10) + 1;
+    element.text(value);
 }
 
 function printComment(comment) {
@@ -84,6 +115,10 @@ function shout() {
     addShout(content.value, image.innerHTML);
 }
 
+function upvote(shoutId) {
+    addUpvote(shoutId);
+}
+
 function comment(shoutId) {
     var content = document.getElementById(shoutId + "_comment");
     addComment(content.value, shoutId);
@@ -98,7 +133,17 @@ function addShout(content, image) {
     socket.send(JSON.stringify(ShoutAction));
 
     document.getElementById("shout-image-input").value = "";
-    document.getElementById("shout_content").value = "";
+    $("#shout_content").val("");
+    $('#shout-image').removeAttr('src')
+}
+
+function addUpvote(shoutId) {
+    var UpvoteAction = {
+        action: "addUpvote",
+        shout_id: shoutId
+    };
+    socket.send(JSON.stringify(UpvoteAction));
+    $('#' + shoutId + "_upvote_button").remove();
 }
 
 function addComment(content, shoutId) {
@@ -108,4 +153,6 @@ function addComment(content, shoutId) {
         shout_id: shoutId
     };
     socket.send(JSON.stringify(CommentAction));
+
+    $("#" + shoutId + "_comment").val("");
 }

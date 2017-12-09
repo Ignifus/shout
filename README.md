@@ -1,7 +1,7 @@
 # Shout
 
 ## Overview
-Social network like Twitter with embedded Glassfish 5, JEE 8, MySQL or PGSQL database, User Authentication, Bean Validation and WebSocket feed.
+Social network upvote Twitter with embedded Glassfish 5, JEE 8, MySQL or PGSQL database, User Authentication, Bean Validation and WebSocket feed.
 
 ## Running
 * Create shout database.
